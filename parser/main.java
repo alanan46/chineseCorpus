@@ -7,11 +7,15 @@ import org.jsoup.select.Elements;
 
 
 
+
+
 import java.io.File;
 import java.io.IOException;
 import java.io.FileWriter;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class main {
     public static void main(String[] args) throws IOException {
@@ -83,14 +87,27 @@ public class main {
     	 
     	 for(i=1;i<post_names.size();i++)
     	 {
+    		 Map name_map = new HashMap();
+    		 
+    		 name_map.put(post_names.get(i), 1);
+    		 int k = 2;
+    		 for(String name : comment_post_names.get(i))
+    		 {
+    			 if(!name_map.containsKey(name))
+    			 {
+    				 name_map.put(name, k);
+    				 k++;
+    			 }
+    		 }
+    		 
     		 if(comments.get(i).size()>0)
     		 {
     			 output.write("<s>");
-    			 output.write("<utt uid=\""+post_names.get(i)+"\">"+main_posts.get(i)+"</utt>");
+    			 output.write("<utt uid=\""+name_map.get(post_names.get(i))+"\">"+main_posts.get(i)+"</utt>");
     			 int n_comments = comments.get(i).size();
     			 for(int j = 0;j < n_comments;j++)
     			 {
-        			 output.write("<utt uid=\""+comment_post_names.get(i).get(j)+"\">"+comments.get(i).get(j)+"</utt>");
+        			 output.write("<utt uid=\""+name_map.get(comment_post_names.get(i).get(j))+"\">"+comments.get(i).get(j)+"</utt>");
     			 }
     			 output.write("</s>\n");
     		 }
