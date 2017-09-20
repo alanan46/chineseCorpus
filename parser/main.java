@@ -48,7 +48,7 @@ public class main {
     		 String name = a.text();
     		 if(name =="")
     			 continue;
-    		 System.out.println(name);
+    		 //System.out.println(name);
     		 post_userIDs.add(name);
     	 }
     	 
@@ -61,34 +61,41 @@ public class main {
     		 
     		 //This is to see the code of a block which include several comments.
     		 //System.out.println(block);
-    		 
-    		 Element primary_reply = block.getElementsByClass("d_post_content").first();
-        	 Element primary_user_name = block.select("a[alog-group=p_author]").first();
+    		 Element ele_with_post_data = block.getElementsByClass("d_post_content").first();
+        	 Element ele_with_post_userID = block.select("a[alog-group=p_author]").first();
 
 
-        	 Elements sub_comments = block.select("span[class=lzl_content_main]");
-        	 Elements user_names = block.select("a[alog-group=p_author]");
-        	 System.out.println("lengths:"+sub_comments.size()+" "+user_names.size());
-        	 System.out.println("Dialogue "+(i+1));
-        	 post_datas.add(primary_reply.text());
-        	 System.out.println(primary_reply.text());
-        	 List<String> temp_comments = new LinkedList<String>();  
-        	 List<String> temp_comment_post_names = new LinkedList<String>();  
-        	 int length = user_names.size();
+        	 Elements eles_with_replys = block.select("span[class=lzl_content_main]");
+        	 Elements eles_with_reply_userIDs = block.select("a[alog-group=p_author]");
+        	 
+        	 //System.out.println("lengths:"+eles_with_replys.size()+" "+eles_with_reply_userIDs.size());
+        	 //System.out.println("Dialogue "+(i+1));
+        	 
+        	 post_datas.add(ele_with_post_data.text());
+        	 
+        	 List<String> temp_replys = new LinkedList<String>();  
+        	 List<String> temp_reply_userIDs = new LinkedList<String>();  
+        	 int length = eles_with_reply_userIDs.size();
         	 for(int j = 0; j < length; j++)
         	 {
-        		 System.out.println(user_names.get(j).text());
-        		 temp_comment_post_names.add(user_names.get(j).text());
-        		 temp_comments.add(sub_comments.get(j).text());
+        		 temp_reply_userIDs.add(eles_with_reply_userIDs.get(j).text());
+        		 temp_replys.add(eles_with_replys.get(j).text());
         	 }
-        	 reply_datas.add(temp_comments);
-        	 reply_userIDs.add(temp_comment_post_names);
+        	 reply_datas.add(temp_replys);
+        	 reply_userIDs.add(temp_reply_userIDs);
     		 i += 1;
     		 }
-    	 System.out.println(post_userIDs.size()+" "+post_datas.size()+" "+ reply_datas.size()+" "+reply_userIDs.size());
     	 
-    	 for(i=1;i<post_userIDs.size();i++)
+    	 // Those four lists should have the same size which is the number of posts in a page.
+    	 System.out.println("post_userIDs.size:"+post_userIDs.size()+" post_datas.size:"+post_datas.size()+" reply_datas.size:"+ reply_datas.size()+" reply_userIDs.size:"+reply_userIDs.size());
+    	 
+    	 int n_post = post_userIDs.size();
+    	 
+    	 //Dump the extracted data into the result file in the required format.
+    	 // i begins from 1 since the first post doesn't have a reply. In fact, other posts are all reply to the first one but we don't take any post together with the first post as a dialogue yet.
+    	 for(i=1;i<n_post;i++)
     	 {
+    		 // maps names to numbers
     		 Map name_map = new HashMap();
     		 
     		 name_map.put(post_userIDs.get(i), 1);
