@@ -33,13 +33,13 @@ public class main {
     	 List<String> post_userIDs = new LinkedList<String>();  
     	 List<String> post_datas = new LinkedList<String>();  
     	 List<List<String>> reply_datas = new LinkedList<List<String>>();  
-    	 List<List<String>> comment_post_names = new LinkedList<List<String>>();  
+    	 List<List<String>> reply_userIDs = new LinkedList<List<String>>();  
     	 
     	 post_datas.add("");
     	 
     	 //the comments for the first flow
     	 reply_datas.add(new LinkedList<String>());
-    	 comment_post_names.add(new LinkedList<String>());
+    	 reply_userIDs.add(new LinkedList<String>());
     	 
     	 for(Element ele : post_userID_divs)
     	 {
@@ -82,10 +82,10 @@ public class main {
         		 temp_comments.add(sub_comments.get(j).text());
         	 }
         	 reply_datas.add(temp_comments);
-        	 comment_post_names.add(temp_comment_post_names);
+        	 reply_userIDs.add(temp_comment_post_names);
     		 i += 1;
     		 }
-    	 System.out.println(post_userIDs.size()+" "+post_datas.size()+" "+ reply_datas.size()+" "+comment_post_names.size());
+    	 System.out.println(post_userIDs.size()+" "+post_datas.size()+" "+ reply_datas.size()+" "+reply_userIDs.size());
     	 
     	 for(i=1;i<post_userIDs.size();i++)
     	 {
@@ -93,7 +93,7 @@ public class main {
     		 
     		 name_map.put(post_userIDs.get(i), 1);
     		 int k = 2;
-    		 for(String name : comment_post_names.get(i))
+    		 for(String name : reply_userIDs.get(i))
     		 {
     			 if(!name_map.containsKey(name))
     			 {
@@ -109,7 +109,7 @@ public class main {
     			 int n_comments = reply_datas.get(i).size();
     			 for(int j = 0;j < n_comments;j++)
     			 {
-        			 output.write("<utt uid=\""+name_map.get(comment_post_names.get(i).get(j))+"\">"+reply_datas.get(i).get(j)+"</utt>");
+        			 output.write("<utt uid=\""+name_map.get(reply_userIDs.get(i).get(j))+"\">"+reply_datas.get(i).get(j)+"</utt>");
     			 }
     			 output.write("</s>\n");
     		 }
