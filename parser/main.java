@@ -19,9 +19,9 @@ import java.util.Map;
 
 public class main {
     public static void main(String[] args) throws IOException {
-         //File input = new File("test.html"); 
-    	 //Document doc = Jsoup.parse(input, "UTF-8", ""); 
-         Document doc = Jsoup.connect("http://tieba.baidu.com/p/4960646551").get(); 
+         File input = new File("test.html"); 
+    	 Document doc = Jsoup.parse(input, "UTF-8", ""); 
+         //Document doc = Jsoup.connect("http://tieba.baidu.com/p/4960646551").get(); 
     	 
     	 FileWriter output = new FileWriter("result.txt");
     	 output.write("<dialog>\n");
