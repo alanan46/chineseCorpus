@@ -16,17 +16,31 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.*;
 
 public class main {
-    public static void main(String[] args) throws IOException {
-         File input = new File("test.html"); 
-    	 Document doc = Jsoup.parse(input, "UTF-8", ""); 
-         //Document doc = Jsoup.connect("http://tieba.baidu.com/p/4960646551").get(); 
-    	 
-    	 FileWriter output = new FileWriter("result.txt");
-    	 output.write("<dialog>\n");
+	
+	
 
+    public static void main(String[] args) throws IOException {
+
+   	     FileWriter output = new FileWriter("result.txt");
+   	    output.write("<dialog>\n");
+   	    parse("http://tieba.baidu.com/p/3077857561",output);
+    }
+	
+    public static void parse(String url,FileWriter output) throws IOException {
     	 
+    	
+     	Pattern p = Pattern.compile("http://tieba.baidu.com/p/(\\d+)\\D*"); 
+    	 Matcher m = p.matcher(url);
+         m.find();
+         String tid = m.group(1);
+         
+         System.out.println("url: "+ url);
+
+      //  File input = new File("test.html"); 
+     	 Document doc = Jsoup.connect(url).get(); 
     	 
     	 Elements post_userID_divs = doc.select("div[class=d_author]"); 
     	 
@@ -48,7 +62,6 @@ public class main {
     		 String name = a.text();
     		 if(name =="")
     			 continue;
-    		 //System.out.println(name);
     		 post_userIDs.add(name);
     	 }
     	 
@@ -61,26 +74,45 @@ public class main {
     		 
     		 //This is to see the code of a block which include several comments.
     		 //System.out.println(block);
+    		 //System.out.println("-------------------------------------------------");
     		 Element ele_with_post_data = block.getElementsByClass("d_post_content").first();
-        	 Element ele_with_post_userID = block.select("a[alog-group=p_author]").first();
 
 
-        	 Elements eles_with_replys = block.select("span[class=lzl_content_main]");
-        	 Elements eles_with_reply_userIDs = block.select("a[alog-group=p_author]");
         	 
-        	 //System.out.println("lengths:"+eles_with_replys.size()+" "+eles_with_reply_userIDs.size());
         	 //System.out.println("Dialogue "+(i+1));
         	 
         	 post_datas.add(ele_with_post_data.text());
         	 
         	 List<String> temp_replys = new LinkedList<String>();  
         	 List<String> temp_reply_userIDs = new LinkedList<String>();  
-        	 int length = eles_with_reply_userIDs.size();
-        	 for(int j = 0; j < length; j++)
+        	 
+        	 String pid = block.select("a[class=l_post_anchor]").attr("name");
+        	 System.out.println("Dialogue "+(i+1));
+        	 if(pid!="")
         	 {
-        		 temp_reply_userIDs.add(eles_with_reply_userIDs.get(j).text());
-        		 temp_replys.add(eles_with_replys.get(j).text());
+        		 int k = 1;
+        		 while(true)
+        		 {
+            		 Document reply_doc = getHiddenData(tid,pid,Integer.toString(k));
+            		 //System.out.println(reply_doc);
+            		 k++;
+            		 
+            		 Elements replys = reply_doc.getElementsByClass("lzl_single_post");
+            		 if(replys.size()==0)
+            		 {
+            			 break;
+            		 }
+            		 for(Element reply:replys)
+            		 {
+            			 temp_reply_userIDs.add(reply.select("a[class=at j_user_card ]").first().text());
+            			 //System.out.println("reply user id:"+reply.select("a[class=at j_user_card ]").first().text());
+            			 temp_replys.add(reply.select("span[class=lzl_content_main]").first().text());
+            			 //System.out.println("reply content:"+reply.select("span[class=lzl_content_main]").first().text());
+            		 }
+        		 }
         	 }
+        	 
+        	 
         	 reply_datas.add(temp_replys);
         	 reply_userIDs.add(temp_reply_userIDs);
     		 i += 1;
@@ -124,4 +156,15 @@ public class main {
     	 output.write("</dialog>");
     	 output.close();
     }
+    
+	public static Document getHiddenData(String tid,String pid,String pn) throws IOException {
+		//build url
+		String url="http://tieba.baidu.com/p/comment?tid="+tid+"&pid="+pid+"&pn="+pn+"&t=1505875331044";
+		System.out.println("reply url:"+url);
+		//make connection
+		Document doc = Jsoup.connect(url).get();
+//		Document doc = Jsoup.connect("http://tieba.baidu.com/p/comment?tid=3077857561&pid=51478739271&pn=2&t=1505875331044").get();
+		// output to file and return a File object, here can be changed to return any desired type
+		return doc;
+	}
 }
