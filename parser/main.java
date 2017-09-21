@@ -144,11 +144,11 @@ public class main {
     		 if(reply_datas.get(i).size()>0)
     		 {
     			 output.write("<s>");
-    			 output.write("<utt uid=\""+name_map.get(post_userIDs.get(i))+"\">"+post_datas.get(i)+"</utt>");
+    			 output.write("<utt uid=\""+name_map.get(post_userIDs.get(i))+"\" "+" uname=\""+post_userIDs.get(i)+"\" >"+post_datas.get(i)+"</utt>");
     			 int n_comments = reply_datas.get(i).size();
     			 for(int j = 0;j < n_comments;j++)
     			 {
-        			 output.write("<utt uid=\""+name_map.get(reply_userIDs.get(i).get(j))+"\">"+reply_datas.get(i).get(j)+"</utt>");
+        			 output.write("<utt uid=\""+name_map.get(reply_userIDs.get(i).get(j))+"\" "+" uname=\""+reply_userIDs.get(i).get(j)+"\" >"+reply_datas.get(i).get(j)+"</utt>");
     			 }
     			 output.write("</s>\n");
     		 }
