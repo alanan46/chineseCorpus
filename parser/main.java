@@ -1,13 +1,10 @@
-package jsoup_parser;
+package test;
+import org.jsoup.parser.*;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-
-
-
 
 import java.io.File;
 import java.io.IOException;
@@ -17,12 +14,46 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import java.io.File;
+import java.io.IOException;
+
 public class main {
+	
+	// the get Hidden replies method
+	public static File getHiddenData(String tid,String pid,String pn) throws IOException {
+		//build url
+		String url="http://tieba.baidu.com/p/comment?tid="+tid+"&pid="+pid+"&pn="+pn+"&t=1505875331044";
+		//make connection
+		Document doc = Jsoup.connect(url).get();
+//		Document doc = Jsoup.connect("http://tieba.baidu.com/p/comment?tid=3077857561&pid=51478739271&pn=2&t=1505875331044").get();
+		// output to file and return a File object, here can be changed to return any desired type
+		FileWriter hidden_output=new FileWriter("testHidden.txt");
+		hidden_output.write(doc.toString());
+		hidden_output.close();
+		File hiddenCommentHtml=new File("testHidden.txt");
+		return hiddenCommentHtml;
+	}
     public static void main(String[] args) throws IOException {
-         File input = new File("test.html"); 
-    	 Document doc = Jsoup.parse(input, "UTF-8", ""); 
-         //Document doc = Jsoup.connect("http://tieba.baidu.com/p/4960646551").get(); 
-    	 
+    	
+    	
+    	
+//         File input = new File("test.html"); 
+    	
+//    		Document doc = Jsoup.parse(input, "UTF-8", ""); 
+    	//make  the function call this way
+    	
+//    		Document doc = Jsoup.parse(getHiddendata("3077857561","51478739271","1"), "UTF-8", ""); 
+        	for (int i=1;i<=2;i++) {
+        		Document doc=Jsoup.parse(getHiddenData("3077857561","51478739271",Integer.toString(i)), "UTF-8", "");
+        		System.out.println(doc);
+        		System.out.println("---------------------------------");
+        		// u can do something like
+        		// parse(doc);  
+        		//which will do parse and write files.
+        	}
+    	
+    		//Document doc = Jsoup.connect("http://tieba.baidu.com/p/4960646551").get(); 
+    	 /*  uncomment this giant block  or maybe put the below into a function so that u can use in the for loop above
     	 FileWriter output = new FileWriter("result.txt");
     	 output.write("<dialog>\n");
 
@@ -48,7 +79,7 @@ public class main {
     		 String name = a.text();
     		 if(name =="")
     			 continue;
-    		 //System.out.println(name);
+    		 System.out.println(name);
     		 post_userIDs.add(name);
     	 }
     	 
@@ -61,41 +92,34 @@ public class main {
     		 
     		 //This is to see the code of a block which include several comments.
     		 //System.out.println(block);
-    		 Element ele_with_post_data = block.getElementsByClass("d_post_content").first();
-        	 Element ele_with_post_userID = block.select("a[alog-group=p_author]").first();
+    		 
+    		 Element primary_reply = block.getElementsByClass("d_post_content").first();
+        	 Element primary_user_name = block.select("a[alog-group=p_author]").first();
 
 
-        	 Elements eles_with_replys = block.select("span[class=lzl_content_main]");
-        	 Elements eles_with_reply_userIDs = block.select("a[alog-group=p_author]");
-        	 
-        	 //System.out.println("lengths:"+eles_with_replys.size()+" "+eles_with_reply_userIDs.size());
-        	 //System.out.println("Dialogue "+(i+1));
-        	 
-        	 post_datas.add(ele_with_post_data.text());
-        	 
-        	 List<String> temp_replys = new LinkedList<String>();  
-        	 List<String> temp_reply_userIDs = new LinkedList<String>();  
-        	 int length = eles_with_reply_userIDs.size();
+        	 Elements sub_comments = block.select("span[class=lzl_content_main]");
+        	 Elements user_names = block.select("a[alog-group=p_author]");
+        	 System.out.println("lengths:"+sub_comments.size()+" "+user_names.size());
+        	 System.out.println("Dialogue "+(i+1));
+        	 post_datas.add(primary_reply.text());
+        	 System.out.println(primary_reply.text());
+        	 List<String> temp_comments = new LinkedList<String>();  
+        	 List<String> temp_comment_post_names = new LinkedList<String>();  
+        	 int length = user_names.size();
         	 for(int j = 0; j < length; j++)
         	 {
-        		 temp_reply_userIDs.add(eles_with_reply_userIDs.get(j).text());
-        		 temp_replys.add(eles_with_replys.get(j).text());
+        		 System.out.println(user_names.get(j).text());
+        		 temp_comment_post_names.add(user_names.get(j).text());
+        		 temp_comments.add(sub_comments.get(j).text());
         	 }
-        	 reply_datas.add(temp_replys);
-        	 reply_userIDs.add(temp_reply_userIDs);
+        	 reply_datas.add(temp_comments);
+        	 reply_userIDs.add(temp_comment_post_names);
     		 i += 1;
     		 }
+    	 System.out.println(post_userIDs.size()+" "+post_datas.size()+" "+ reply_datas.size()+" "+reply_userIDs.size());
     	 
-    	 // Those four lists should have the same size which is the number of posts in a page.
-    	 System.out.println("post_userIDs.size:"+post_userIDs.size()+" post_datas.size:"+post_datas.size()+" reply_datas.size:"+ reply_datas.size()+" reply_userIDs.size:"+reply_userIDs.size());
-    	 
-    	 int n_post = post_userIDs.size();
-    	 
-    	 //Dump the extracted data into the result file in the required format.
-    	 // i begins from 1 since the first post doesn't have a reply. In fact, other posts are all reply to the first one but we don't take any post together with the first post as a dialogue yet.
-    	 for(i=1;i<n_post;i++)
+    	 for(i=1;i<post_userIDs.size();i++)
     	 {
-    		 // maps names to numbers
     		 Map name_map = new HashMap();
     		 
     		 name_map.put(post_userIDs.get(i), 1);
@@ -123,5 +147,8 @@ public class main {
     	 }
     	 output.write("</dialog>");
     	 output.close();
+    	*/
     }
+    
 }
+
