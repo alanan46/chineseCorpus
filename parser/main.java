@@ -9,7 +9,10 @@ import org.jsoup.select.Elements;
 
 
 
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileWriter;
 import java.util.HashMap;
@@ -23,13 +26,45 @@ public class main {
 	
 
     public static void main(String[] args) throws IOException {
+    	
+    	
+    	String url_file_name_prefix = "URLs2";
+    	int save_interval = 50;
+    	
+    	String url_file_name  = url_file_name_prefix + ".txt";
+    	
+    	List<String> urls = readFile01(url_file_name);
+    	
+    	
+    	int i = 0;
+    	int total_dialogue = 0;
+    	int tmp_dialogue = 0;
 
-   	     FileWriter output = new FileWriter("result.txt");
+ 	    FileWriter output = new FileWriter(url_file_name+i+"result.txt");
    	    output.write("<dialog>\n");
-   	    parse("http://tieba.baidu.com/p/5331994280",output);
+   	    
+    	for(String url : urls)
+    	{
+    		System.out.println("url #"+i);
+    		tmp_dialogue = parse(url,output);
+    		total_dialogue += tmp_dialogue;
+    		System.out.println("extracted "+tmp_dialogue+" dialogues from this page.");
+    		System.out.println("extracted "+total_dialogue+" dialogues altogether.");
+       	    i++;
+       	    if(i%save_interval == 0)
+       	    {
+           	 output.write("</dialog>");
+        	 output.close();
+        	 System.out.println("save file to "+url_file_name+(i-50)+"result.txt");
+        	 output = new FileWriter(url_file_name+i+"result.txt");
+        	 output.write("<dialog>\n");
+       	    }
+    	}
+    	
+
     }
 	
-    public static void parse(String url,FileWriter output) throws IOException {
+    public static int parse(String url,FileWriter output) throws IOException {
     	 
     	
      	Pattern p = Pattern.compile("https*://tieba.baidu.com/p/(\\d+)\\D*"); 
@@ -67,9 +102,9 @@ public class main {
     	 
     	 Elements blocks = doc.select("div[class=d_post_content_main]"); 
     	 
-    	 System.out.println("name length:"+post_userIDs.size()+" block length:"+blocks.size());
 
     	 int i = 0;
+    	 int n_dia = 0;
     	 for (Element block : blocks) {
     		 
     		 //This is to see the code of a block which include several comments.
@@ -87,9 +122,10 @@ public class main {
         	 List<String> temp_reply_userIDs = new LinkedList<String>();  
         	 
         	 String pid = block.select("a[class=l_post_anchor]").attr("name");
-        	 System.out.println("Dialogue "+(i+1));
         	 if(pid!="")
         	 {
+        		 n_dia++;
+            	 System.out.println("Dialogue "+n_dia);
         		 int k = 1;
         		 while(true)
         		 {
@@ -119,7 +155,7 @@ public class main {
     		 }
     	 
     	 // Those four lists should have the same size which is the number of posts in a page.
-    	 System.out.println("post_userIDs.size:"+post_userIDs.size()+" post_datas.size:"+post_datas.size()+" reply_datas.size:"+ reply_datas.size()+" reply_userIDs.size:"+reply_userIDs.size());
+    	 //System.out.println("post_userIDs.size:"+post_userIDs.size()+" post_datas.size:"+post_datas.size()+" reply_datas.size:"+ reply_datas.size()+" reply_userIDs.size:"+reply_userIDs.size());
     	 
     	 int n_post = post_userIDs.size();
     	 
@@ -127,22 +163,24 @@ public class main {
     	 // i begins from 1 since the first post doesn't have a reply. In fact, other posts are all reply to the first one but we don't take any post together with the first post as a dialogue yet.
     	 for(i=1;i<n_post;i++)
     	 {
-    		 // maps names to numbers
-    		 Map name_map = new HashMap();
-    		 
-    		 name_map.put(post_userIDs.get(i), 1);
-    		 int k = 2;
-    		 for(String name : reply_userIDs.get(i))
-    		 {
-    			 if(!name_map.containsKey(name))
-    			 {
-    				 name_map.put(name, k);
-    				 k++;
-    			 }
-    		 }
     		 
     		 if(reply_datas.get(i).size()>0)
     		 {
+
+        		 // maps names to numbers
+        		 Map name_map = new HashMap();
+        		 
+        		 name_map.put(post_userIDs.get(i), 1);
+        		 int k = 2;
+        		 for(String name : reply_userIDs.get(i))
+        		 {
+        			 if(!name_map.containsKey(name))
+        			 {
+        				 name_map.put(name, k);
+        				 k++;
+        			 }
+        		 }
+    			 
     			 output.write("<s>");
     			 output.write("<utt uid=\""+name_map.get(post_userIDs.get(i))+"\" "+" uname=\""+post_userIDs.get(i)+"\" >"+post_datas.get(i)+"</utt>");
     			 int n_comments = reply_datas.get(i).size();
@@ -153,8 +191,21 @@ public class main {
     			 output.write("</s>\n");
     		 }
     	 }
-    	 output.write("</dialog>");
-    	 output.close();
+    	 return n_dia;
+    }
+    
+    public static List<String> readFile01(String file_name) throws IOException {
+        FileReader fr=new FileReader(file_name);
+        BufferedReader br=new BufferedReader(fr);
+        String line="";
+        String[] arrs=null;
+        List<String> result = new LinkedList<String>();
+        while ((line=br.readLine())!=null) {
+        	result.add(line);
+        }
+        br.close();
+        fr.close();
+        return result;
     }
     
 	public static Document getHiddenData(String tid,String pid,String pn) throws IOException {
