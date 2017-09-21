@@ -26,13 +26,13 @@ public class main {
 
    	     FileWriter output = new FileWriter("result.txt");
    	    output.write("<dialog>\n");
-   	    parse("http://tieba.baidu.com/p/3077857561",output);
+   	    parse("http://tieba.baidu.com/p/5331994280",output);
     }
 	
     public static void parse(String url,FileWriter output) throws IOException {
     	 
     	
-     	Pattern p = Pattern.compile("http://tieba.baidu.com/p/(\\d+)\\D*"); 
+     	Pattern p = Pattern.compile("https*://tieba.baidu.com/p/(\\d+)\\D*"); 
     	 Matcher m = p.matcher(url);
          m.find();
          String tid = m.group(1);
