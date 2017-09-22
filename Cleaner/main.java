@@ -1,9 +1,14 @@
 package testjava;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,11 +30,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-/**
- * @author Alexia
- * 
- * DOM ����XML�ĵ�
- */
+
 public class main{
     private Document document;
     
@@ -340,6 +341,53 @@ public class main{
         }
     }
     
-    
+    public static void mergeXML(String input_f1, String input_f2, String output_f){
+
+
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = null;
+        Document doc = null;
+        Document doc2 = null;
+
+        try {
+                db = dbf.newDocumentBuilder();
+                doc = db.parse(new File(input_f1));
+                doc2 = db.parse(new File(input_f2));
+                NodeList ndListFirstFile = doc.getElementsByTagName("staff");
+
+                Node nodeArea = doc.importNode(doc2.getElementsByTagName("area").item(0), true);
+                Node nodeCity = doc.importNode(doc2.getElementsByTagName("city").item(0), true);
+                ndListFirstFile.item(0).appendChild(nodeArea);
+                ndListFirstFile.item(0).appendChild(nodeCity);
+
+              TransformerFactory tFactory = TransformerFactory.newInstance();
+              Transformer transformer = tFactory.newTransformer();
+              transformer.setOutputProperty(OutputKeys.INDENT, "yes");  
+
+              DOMSource source = new DOMSource(doc);
+              StreamResult result = new StreamResult(new StringWriter());
+              transformer.transform(source, result); 
+
+              Writer output = new BufferedWriter(new FileWriter(output_f));
+              String xmlOutput = result.getWriter().toString();  
+              output.write(xmlOutput);
+              output.close();
+
+        } catch (ParserConfigurationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (TransformerException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+    }
     
 }
