@@ -31,9 +31,9 @@ public class main {
     	String url_file_name_prefix = "URLs2";
     	int save_interval = 500;
     	
-    	String url_file_name  = url_file_name_prefix + ".txt";
+    	String url_file_name  = url_file_name_prefix;
     	
-    	List<String> urls = readFile01(url_file_name);
+    	List<String> urls = readFile01(url_file_name + ".txt");
     	
     	
     	int i = 0;
@@ -184,11 +184,11 @@ public class main {
         		 }
     			 
     			 output.write("<s>");
-    			 output.write("<utt uid=\""+name_map.get(post_userIDs.get(i))+"\" "+" uname=\""+post_userIDs.get(i)+"\" >"+post_datas.get(i)+"</utt>");
+    			 output.write("<utt uid=\""+name_map.get(post_userIDs.get(i)).toString().replaceAll("[<>]","")+"\" "+" uname=\""+post_userIDs.get(i).toString().replaceAll("[<>]","")+"\" >"+post_datas.get(i).toString().replaceAll("[<>]","")+"</utt>");
     			 int n_comments = reply_datas.get(i).size();
     			 for(int j = 0;j < n_comments;j++)
     			 {
-        			 output.write("<utt uid=\""+name_map.get(reply_userIDs.get(i).get(j))+"\" "+" uname=\""+reply_userIDs.get(i).get(j)+"\" >"+reply_datas.get(i).get(j)+"</utt>");
+        			 output.write("<utt uid=\""+name_map.get(reply_userIDs.get(i).get(j)).toString().replaceAll("[<>]","")+"\" "+" uname=\""+reply_userIDs.get(i).get(j).toString().replaceAll("[<>]","")+"\" >"+reply_datas.get(i).get(j).toString().replaceAll("[<>]","")+"</utt>");
     			 }
     			 output.write("</s>\n");
     		 }
