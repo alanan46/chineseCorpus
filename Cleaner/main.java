@@ -1,5 +1,4 @@
 package testjava;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,15 +29,21 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.util.Map;
+import java.util.HashMap;
 
-public class main{
+
+public class cleaner{
     private Document document;
+    
+    public static 	 Map<String,Integer> stats= new HashMap<String,Integer>();  
+
     
     
     public static void main(String[] args) throws IOException {
     	
-    	RemoveReplyOfXml("URLs2.txt150result.txt","URLs2.txt150changedresult.txt");
-    	
+    	RemoveReplyOfXml("a.txt","testtestresult.txt");
+    	return;
     }
     
 
@@ -165,7 +170,7 @@ public class main{
             e.printStackTrace();
         }
     }
-
+    //adding stats stuff in the function below
     public static void RemoveReplyOfXml(String inputFileName, String outputFileName) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -176,21 +181,32 @@ public class main{
             for (int i = 0; i < users.getLength(); i++) {
                 Node user = users.item(i);
                 NodeList userInfo = user.getChildNodes();
-                
+                //counter to count <s> that has content
+                //not all j has conversation in it
+                int counter=1;
                 for (int j = 0; j < userInfo.getLength(); j++) {
+                	
                     Node node = userInfo.item(j);
                     NodeList userMeta = node.getChildNodes();
-                    
-                    for (int k = 1; k < userMeta.getLength(); k++) {
+                    int k = 1;
+                    for (; k < userMeta.getLength(); k++) {
                         String content = userMeta.item(k).getTextContent();
                         Pattern p = Pattern.compile("回复 \\S+ :(\\S+)");  
                         Matcher m = p.matcher(content);
-                        if(m.find())
-                            userMeta.item(k).setTextContent(m.group(1));
+                        if(m.find()) {
+                        	userMeta.item(k).setTextContent(m.group(1));
+                        }
+                            
+                    }
+                    //if there is actually utterance then record the # of utterance in a conversation
+                    if(k>1) {
+                    	stats.put("conv"+counter, k);
+                    	counter++;
                     }
                     
                     System.out.println();
                 }
+                System.out.println("stats: "+stats);
             }
             
     		TransformerFactory tf = TransformerFactory.newInstance();
@@ -389,5 +405,6 @@ public class main{
 
 
     }
+    
     
 }
