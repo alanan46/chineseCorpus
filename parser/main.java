@@ -28,7 +28,7 @@ public class main {
     public static void main(String[] args) throws IOException {
     	
     	
-    	String url_file_name_prefix = "URLs2";
+    	String url_file_name_prefix = "final_url2";
     	int save_interval = 500;
     	
     	String url_file_name  = url_file_name_prefix;
@@ -43,19 +43,25 @@ public class main {
  	    FileWriter output = new FileWriter(url_file_name+i+"result.txt");
    	    output.write("<dialog>\n");
    	    
+
+
+ 	    FileWriter log = new FileWriter("log.txt");
     	for(String url : urls)
     	{
     		System.out.println("url #"+i);
-    		tmp_dialogue = parse(url,output);
+    		tmp_dialogue = parse(url,output, log);
     		total_dialogue += tmp_dialogue;
     		System.out.println("extracted "+tmp_dialogue+" dialogues from this page.");
     		System.out.println("extracted "+total_dialogue+" dialogues altogether.");
+    		log.write("extracted "+tmp_dialogue+" dialogues from this page.");
+    		log.write("extracted "+total_dialogue+" dialogues altogether.");
        	    i++;
        	    if(i%save_interval == 0)
        	    {
            	 output.write("</dialog>");
         	 output.close();
         	 System.out.println("save file to "+url_file_name+(i-50)+"result.txt");
+        	 log.write("save file to "+url_file_name+(i-50)+"result.txt");
         	 output = new FileWriter(url_file_name+i+"result.txt");
         	 output.write("<dialog>\n");
        	    }
@@ -63,10 +69,11 @@ public class main {
 
         output.write("</dialog>");
    	    output.close();
+   	    log.close();
 
     }
 	
-    public static int parse(String url,FileWriter output) throws IOException {
+    public static int parse(String url,FileWriter output, FileWriter log) throws IOException {
     	 
     	
      	 Pattern p = Pattern.compile("https*://tieba.baidu.com/p/(\\d+)\\D*"); 
@@ -131,7 +138,7 @@ public class main {
         		 int k = 1;
         		 while(true)
         		 {
-            		 Document reply_doc = getHiddenData(tid,pid,Integer.toString(k));
+            		 Document reply_doc = getHiddenData(tid,pid,Integer.toString(k), log);
             		 //System.out.println(reply_doc);
             		 k++;
             		 
@@ -158,6 +165,8 @@ public class main {
     	 
     	 // Those four lists should have the same size which is the number of posts in a page.
     	 System.out.println("post_userIDs.size:"+post_userIDs.size()+" post_datas.size:"+post_datas.size()+" reply_datas.size:"+ reply_datas.size()+" reply_userIDs.size:"+reply_userIDs.size());
+    	 log.write("post_userIDs.size:"+post_userIDs.size()+" post_datas.size:"+post_datas.size()+" reply_datas.size:"+ reply_datas.size()+" reply_userIDs.size:"+reply_userIDs.size());
+    	 
     	 
     	 int n_post = post_userIDs.size();
     	 
@@ -213,10 +222,11 @@ public class main {
         return result;
     }
     
-	public static Document getHiddenData(String tid,String pid,String pn) throws IOException {
+	public static Document getHiddenData(String tid,String pid,String pn, FileWriter log) throws IOException {
 		//build url
 		String url="http://tieba.baidu.com/p/comment?tid="+tid+"&pid="+pid+"&pn="+pn+"&t=1505875331044";
 		System.out.println("reply url:"+url);
+		log.write("reply url:"+url);
 		//make connection
 		Document doc = Jsoup.connect(url).get();
 //		Document doc = Jsoup.connect("http://tieba.baidu.com/p/comment?tid=3077857561&pid=51478739271&pn=2&t=1505875331044").get();
