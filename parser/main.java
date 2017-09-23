@@ -29,7 +29,7 @@ public class main {
     	
     	
     	String url_file_name_prefix = "URLs2";
-    	int save_interval = 50;
+    	int save_interval = 500;
     	
     	String url_file_name  = url_file_name_prefix + ".txt";
     	
