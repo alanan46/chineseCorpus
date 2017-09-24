@@ -1,0 +1,1 @@
+sed -i -e ' s/uname=[^>]*>/>/g' final_corpus.txt

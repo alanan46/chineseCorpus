@@ -87,9 +87,15 @@ public class main{
     	regexs=loadRegexs();
     	//System.out.println(regexs);
     	//purgeMergeDataFile();
-    	RemoveReplyOfXml("merged.txt","reply_removed.txt");
-    	//removeAttribute("reply_removed.txt","no_uname.txt","uname");
-    	//purifyXml("no_uname.txt","final_corpus.txt");
+    	
+    	//deprecated
+    	//RemoveReplyOfXml("merged.txt","reply_removed.txt");
+    	
+    	
+    	//removeSpecialCharacters();
+    	
+    	purifyXml("merged.txt","final_corpus.txt");
+    	//removeAttribute();
     	//do Counting and output to stats.txt
     	//StatsXml("t2.txt","stats.txt");
     	return;
@@ -102,6 +108,17 @@ public class main{
     	
     	try {
 			Process p=Runtime.getRuntime().exec("./remove_special_characters.sh");
+			return;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+
+    public static void removeAttribute() {
+    	
+    	try {
+			Process p=Runtime.getRuntime().exec("./removeatrribute.sh");
 			return;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -152,23 +169,31 @@ public class main{
                         	userMeta.item(k).setTextContent(m12.group(1));
                         }
                         //filter swear words 
-                        for ( String reg:regexs) {
+                        Boolean removed = false;
+                        
+/*                        for ( String reg:regexs) {
                             String content1 = userMeta.item(k).getTextContent();
-                            Pattern ptn = Pattern.compile(reg);  
-                            Matcher m1 = ptn.matcher(content1);
-                            if(m1.find()) {
+                           //Pattern ptn = Pattern.compile(reg);  
+                            //Matcher m1 = ptn.matcher(content1);
+                            //if(m1.find()) {
+                            if(content1.contains(reg))
+                            {
                             	//delete it
                             	userMeta.item(k).getParentNode().removeChild(userMeta.item(k));
+                            	removed = true;
                             	break;
                             }
+                        }*/
+/*                        if(!removed)
+                        {
+                            Element element = (Element) userMeta.item(k);
+                            element.removeAttribute("uname");
                         }
-                        
+                        */
                         //Node value = userMeta.item(k).getAttributes().getNamedItem("uid");
                         //String val = value.getNodeValue();
                         //value.setNodeValue("2");
                         
-                        Element element = (Element) userMeta.item(k);
-                        element.removeAttribute("uname");
                     }
                     //if there is actually utterance then record the # of utterance in a conversation
                     if(k>1) {
@@ -176,7 +201,7 @@ public class main{
                     	counter++;
                     }
                     
-                    System.out.println();
+                    //System.out.println();
                 }
                 System.out.println("stats: "+stats);
             }
@@ -483,6 +508,7 @@ public class main{
                         Pattern p = Pattern.compile("回复 \\S+ :(\\S+)");  
                         Matcher m = p.matcher(content);
                         if(m.find()) {
+                        	System.out.println(m.group(1));
                         	userMeta.item(k).setTextContent(m.group(1));
                         }
                             
