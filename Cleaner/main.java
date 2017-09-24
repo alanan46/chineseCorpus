@@ -45,7 +45,7 @@ import java.util.List;
  * @ original author Alexia
  * 
  * give a link of the original code below
- * 
+ * http://www.cnblogs.com/lanxuezaipiao/archive/2013/05/17/3082949.html
  */
 public class main{
     private Document document;
@@ -97,6 +97,17 @@ public class main{
     //get rid of all txt files with only <dialogue></dialogue> tag and no data
     // and merge them to a single file
     // then clean the <dialogue>tag so that the result file is a pure xml
+
+    public static void removeSpecialCharacters() {
+    	
+    	try {
+			Process p=Runtime.getRuntime().exec("./remove_special_characters.sh");
+			return;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     
     public static void purgeMergeDataFile() {
     	
