@@ -186,10 +186,10 @@ public class main {
 									remove_map.put(reg, (int)remove_map.get(reg)+1);
 								}
 								// delete it
-								System.out.println("number: " + number
-										+ " reg: " + reg);
-								System.out.println("Delete '" + content1
-										+ "' because of '" + reg + "'\n");
+								//System.out.println("number: " + number
+								//		+ " reg: " + reg);
+								//System.out.println("Delete '" + content1
+								//		+ "' because of '" + reg + "'\n");
 								deletelog.write("Delete '" + content1
 										+ "' because of '" + reg + "'"
 										+ "number: " + number + "\n");
@@ -533,7 +533,6 @@ public class main {
 						Pattern p = Pattern.compile("回复 \\S+ :(\\S+)");
 						Matcher m = p.matcher(content);
 						if (m.find()) {
-							System.out.println(m.group(1));
 							userMeta.item(k).setTextContent(m.group(1));
 						}
 
@@ -545,7 +544,6 @@ public class main {
 						counter++;
 					}
 
-					System.out.println();
 				}
 				System.out.println("stats: " + stats);
 			}
