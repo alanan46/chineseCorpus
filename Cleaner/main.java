@@ -153,7 +153,7 @@ public class main {
 
 					Node node = userInfo.item(j);
 					NodeList userMeta = node.getChildNodes();
-					int k = 1;
+					int k = 0;
 					for (; k < userMeta.getLength(); k++) {
 						String content = userMeta.item(k).getTextContent();
 						Pattern p11 = Pattern.compile("回复\\s*\\S+\\s*:(.*)");
@@ -170,11 +170,11 @@ public class main {
 						if (m12.find()) {
 							userMeta.item(k).setTextContent(m12.group(1));
 						}
-						//System.out.println("("+(userMeta.item(k).getTextContent().length())+")"+"'"+userMeta.item(k).getTextContent()+"'");
 						if(userMeta.item(k).getTextContent().length()==0){
-							System.out.println("remove");
+							System.out.println("removed");
 							userMeta.item(k).getParentNode()
 							.removeChild(userMeta.item(k));
+							k--;
 							continue;
 						}
 							
@@ -206,6 +206,7 @@ public class main {
 										+ "number: " + number + "\n");
 								userMeta.item(k).getParentNode()
 										.removeChild(userMeta.item(k));
+								k--;
 								removed = true;
 								break;
 							}
