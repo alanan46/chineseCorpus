@@ -158,6 +158,8 @@ public class main {
 						String content = userMeta.item(k).getTextContent();
 						Pattern p11 = Pattern.compile("回复\\s*\\S+\\s*:(.*)");
 						Pattern p12 = Pattern.compile("回复\\s*\\S+\\s*：(.*)");
+						
+						//System.out.println("\""+content+"\"");
 
 						Matcher m11 = p11.matcher(content);
 						Matcher m12 = p12.matcher(content);
@@ -168,6 +170,15 @@ public class main {
 						if (m12.find()) {
 							userMeta.item(k).setTextContent(m12.group(1));
 						}
+						//System.out.println("("+(userMeta.item(k).getTextContent().length())+")"+"'"+userMeta.item(k).getTextContent()+"'");
+						if(userMeta.item(k).getTextContent().length()==0){
+							System.out.println("remove");
+							userMeta.item(k).getParentNode()
+							.removeChild(userMeta.item(k));
+							continue;
+						}
+							
+						
 						// filter swear words
 						Boolean removed = false;
 						int number = 1;
