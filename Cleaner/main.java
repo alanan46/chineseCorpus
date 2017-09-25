@@ -170,8 +170,11 @@ public class main {
 						if (m12.find()) {
 							userMeta.item(k).setTextContent(m12.group(1));
 						}
-						if(userMeta.item(k).getTextContent().length()==0){
-							System.out.println("removed");
+						
+
+						Pattern p13 = Pattern.compile("\\s+");
+						Matcher m13 = p13.matcher(userMeta.item(k).getTextContent());
+						if(userMeta.item(k).getTextContent().length()==0||m13.find()){
 							userMeta.item(k).getParentNode()
 							.removeChild(userMeta.item(k));
 							k--;
