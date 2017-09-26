@@ -85,11 +85,10 @@ public class main {
 
 		regexs = loadRegexs();
 		// System.out.println(regexs);
-		// purgeMergeDataFile();
-		// removeSpecialCharacters();
-
+		purgeMergeDataFile();
+		removeSpecialCharacters();
 		purifyXml("merged.txt", "final_corpus.txt");
-		// removeAttribute();
+		removeAttribute();
 		// do Counting and output to stats.txt
 		// StatsXml("t2.txt","stats.txt");
 		return;
@@ -99,6 +98,18 @@ public class main {
 	// and merge them to a single file
 	// then clean the <dialogue>tag so that the result file is a pure xml
 
+	public static void merge() {
+
+		try {
+			Process p = Runtime.getRuntime().exec(
+					"./merge.sh");
+			return;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void removeSpecialCharacters() {
 
 		try {
@@ -125,7 +136,7 @@ public class main {
 	public static void purgeMergeDataFile() {
 
 		try {
-			Process p = Runtime.getRuntime().exec("./clean.sh");
+			Process p = Runtime.getRuntime().exec("./merge.sh");
 			return;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
