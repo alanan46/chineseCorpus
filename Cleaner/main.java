@@ -40,10 +40,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author Miles,Alan,Akash based on @ original author Alexia
- * 
- *         give a link of the original code below
- *         http://www.cnblogs.com/lanxuezaipiao/archive/2013/05/17/3082949.html
+ * @author Miles,Alan,Akash based on 
+ * @ original author Alexia: http://www.cnblogs.com/lanxuezaipiao/archive/2013/05/17/3082949.html
+ *        
  */
 public class main {
 	private Document document;
@@ -84,13 +83,12 @@ public class main {
 	public static void main(String[] args) throws IOException {
 
 		regexs = loadRegexs();
-		// System.out.println(regexs);
 		purgeMergeDataFile();
 		removeSpecialCharacters();
 		purifyXml("merged.txt", "final_corpus.txt");
 		removeAttribute();
-		// do Counting and output to stats.txt
-		// StatsXml("t2.txt","stats.txt");
+    	StatsXml("final_corpus.txt","final_stats.txt");
+    	UIDStatsXml("final_corpus.txt","pp_stats.txt");
 		return;
 	}
 
@@ -227,14 +225,6 @@ public class main {
 							number++;
 						}
 						
-						/*
-						 * if(!removed) { Element element = (Element)
-						 * userMeta.item(k); element.removeAttribute("uname"); }
-						 */
-						// Node value =
-						// userMeta.item(k).getAttributes().getNamedItem("uid");
-						// String val = value.getNodeValue();
-						// value.setNodeValue("2");
 
 					}
 					// if there is actually utterance then record the # of
@@ -253,30 +243,6 @@ public class main {
 				remove_map_file.close();
 				System.out.println("stats: " + stats);
 			}
-			/*
-			 * for (int i = 0; i < users.getLength(); i++) { Node user =
-			 * users.item(i); NodeList userInfo = user.getChildNodes();
-			 * 
-			 * for (int j = 0; j < userInfo.getLength(); j++) { Node node =
-			 * userInfo.item(j); NodeList userMeta = node.getChildNodes();
-			 * 
-			 * for (int k = 0; k < userMeta.getLength(); k++) {
-			 * if(userMeta.item(k).getNodeName() != "#text")
-			 * System.out.println(userMeta.item(k).getNodeName() + ":" +
-			 * userMeta.item(k).getTextContent());
-			 * 
-			 * 
-			 * Node value =
-			 * userMeta.item(k).getAttributes().getNamedItem("uid"); //String
-			 * val = value.getNodeValue(); //value.setNodeValue("2");
-			 * 
-			 * Element element = (Element) userMeta.item(k);
-			 * element.removeAttribute("uname");
-			 * 
-			 * }
-			 * 
-			 * System.out.println(); } }
-			 */
 
 			TransformerFactory tf = TransformerFactory.newInstance();
 			Transformer transformer;
@@ -311,419 +277,139 @@ public class main {
 		}
 	}
 
-	public static void StatsXml(String inputFileName, String outputFileName) {
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document document = db.parse(inputFileName);
-			NodeList users = document.getChildNodes();
+    public static void StatsXml(String inputFileName,String outputFileName) {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document document = db.parse(inputFileName);
+            NodeList users = document.getChildNodes();
+            
+            for (int i = 0; i < users.getLength(); i++) {
+            	
+                Node user = users.item(i);
+                NodeList userInfo = user.getChildNodes();
+                //counter to count <s> that has content
+                //not all j has conversation in it
+                int counter=1;
+               
+                for (int j = 0; j < userInfo.getLength(); j++) {
+                	
+                    Node node = userInfo.item(j);
+                    NodeList userMeta = node.getChildNodes();
+                    int k = 0;
+                    int wdLength=0;
+                	
+                    ArrayList<Integer> tempAL=new ArrayList<Integer>();
+                    int turnCounter=1;
+                    for (; k < userMeta.getLength(); k++) {
+                    	
+                        String content = userMeta.item(k).getTextContent();
+                        if(content.equals("\n"))continue;
+                        wdLength=content.length();
+                        if(wdLength>0) {
+                        	turnCounter++;
 
-			for (int i = 0; i < users.getLength(); i++) {
+                        	tempAL.add(wdLength);
+                        }
+                        
+                    }
+                    //if there is actually utterance then record the # of utterance in a conversation
+                    if(k>1) {
+                    	stats.put("conv"+counter, (turnCounter-1));
+                    	 Stats2d.add(tempAL);
+                    	counter++;
+                    }
+                    System.out.println();
+                }
+                System.out.println("stats: "+stats);
+                FileWriter output = new FileWriter(outputFileName);
+                for (int ii=0;ii< Stats2d.size();ii++) {
+                	
+                	System.out.println("conv"+(ii+1)+" :");
+                	for (int jj=0;jj<Stats2d.get(ii).size();jj++) {
+                		System.out.println("turn"+(jj+1)+" :"+Stats2d.get(ii).get(jj)+" words");
+                		output.write(Stats2d.get(ii).get(jj)+" ");
+                	}
+                	output.write("\n");
+                	
+                }
+                output.close();
+                
+          
+            }
+            
+            
 
-				Node user = users.item(i);
-				NodeList userInfo = user.getChildNodes();
-				// counter to count <s> that has content
-				// not all j has conversation in it
-				int counter = 1;
+            
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void UIDStatsXml(String inputFileName,String outputFileName) {
+        try {
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document document = db.parse(inputFileName);
+            NodeList users = document.getChildNodes();
+            
+            for (int i = 0; i < users.getLength(); i++) {
+            	
+                Node user = users.item(i);
+                NodeList userInfo = user.getChildNodes();
+                //counter to count <s> that has content
+                //not all j has conversation in it
+                int counter=1;
+                ArrayList<Integer> ppCounter=new ArrayList<Integer>();
+                for (int j = 0; j < userInfo.getLength(); j++) {
+                	
+                    Node node = userInfo.item(j);
+                    NodeList userMeta = node.getChildNodes();
+                    int k = 0;
+                   
+                    int max=0;
+                    for (; k < userMeta.getLength(); k++) {
+                    	
+                        String content = userMeta.item(k).getTextContent();
+                        if(content.equals("\n"))continue;
+                        Node value = userMeta.item(k).getAttributes().getNamedItem("uid");
+                        max=Math.max(max, Integer.parseInt(value.getNodeValue()));
 
-				for (int j = 0; j < userInfo.getLength(); j++) {
+                    }
+                    ppCounter.add(max);
+                                }
+                FileWriter output = new FileWriter(outputFileName);
+                for (int tmpnum:ppCounter) {
+                		if(tmpnum==0) continue;
+                		output.write(Integer.toString(tmpnum));
+                	
+                	output.write("\n");
+                	
+                }
+                output.close();
+                
+          
+            }
+            
+    
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-					Node node = userInfo.item(j);
-					NodeList userMeta = node.getChildNodes();
-					int k = 1;
-					int wdLength = 0;
-					// arrayList tmp
 
-					ArrayList<Integer> tempAL = new ArrayList<Integer>();
-					int turnCounter = 1;
-					for (; k < userMeta.getLength(); k++) {
 
-						String content = userMeta.item(k).getTextContent();
-						if (content.equals("\n"))
-							continue;
-						wdLength = content.length();
-						if (wdLength > 0) {
-							turnCounter++;
-							// System.out.println("wdlength :"+wdLength+"  "+content);
-							tempAL.add(wdLength);
-						}
-
-					}
-					// if there is actually utterance then record the # of
-					// utterance in a conversation
-					if (k > 1) {
-						stats.put("conv" + counter, (turnCounter - 1));
-						Stats2d.add(tempAL);
-						counter++;
-					}
-					System.out.println();
-				}
-				System.out.println("stats: " + stats);
-				FileWriter output = new FileWriter(outputFileName);
-				for (int ii = 0; ii < Stats2d.size(); ii++) {
-
-					System.out.println("conv" + (ii + 1) + " :");
-					for (int jj = 0; jj < Stats2d.get(ii).size(); jj++) {
-						System.out.println("turn" + (jj + 1) + " :"
-								+ Stats2d.get(ii).get(jj) + " words");
-						output.write(Stats2d.get(ii).get(jj) + " ");
-					}
-					output.write("\n");
-
-				}
-				output.close();
-
-			}
-
-			// TransformerFactory tf = TransformerFactory.newInstance();
-			// Transformer transformer;
-			// try {
-			// transformer = tf.newTransformer();
-			// DOMSource source = new DOMSource(document);
-			// transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-			// transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			// PrintWriter pw = new PrintWriter(new
-			// FileOutputStream(outputFileName));
-			// StreamResult result = new StreamResult(pw);
-			// try {
-			// transformer.transform(source, result);
-			// } catch (TransformerException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-			//
-			// } catch (TransformerConfigurationException e) {
-			// // TODO Auto-generated catch block
-			// e.printStackTrace();
-			// }
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void parserXml(String inputFileName, String outputFileName) {
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document document = db.parse(inputFileName);
-			NodeList users = document.getChildNodes();
-
-			for (int i = 0; i < users.getLength(); i++) {
-				Node user = users.item(i);
-				NodeList userInfo = user.getChildNodes();
-
-				for (int j = 0; j < userInfo.getLength(); j++) {
-					Node node = userInfo.item(j);
-					NodeList userMeta = node.getChildNodes();
-
-					for (int k = 0; k < userMeta.getLength(); k++) {
-						if (userMeta.item(k).getNodeName() != "#text")
-							System.out.println(userMeta.item(k).getNodeName()
-									+ ":" + userMeta.item(k).getTextContent());
-
-						Node value = userMeta.item(k).getAttributes()
-								.getNamedItem("uid");
-						// String val = value.getNodeValue();
-						// value.setNodeValue("2");
-
-						Element element = (Element) userMeta.item(k);
-						element.removeAttribute("uname");
-
-					}
-
-					System.out.println();
-				}
-			}
-
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer;
-			try {
-				transformer = tf.newTransformer();
-				DOMSource source = new DOMSource(document);
-				transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				PrintWriter pw = new PrintWriter(new FileOutputStream(
-						outputFileName));
-				StreamResult result = new StreamResult(pw);
-				try {
-					transformer.transform(source, result);
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			} catch (TransformerConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	// remove the sentence with
-	public static void ChangeContentOfXml(String inputFileName,
-			String outputFileName, String[] regex) {
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document document = db.parse(inputFileName);
-			NodeList users = document.getChildNodes();
-
-			for (int i = 0; i < users.getLength(); i++) {
-				Node user = users.item(i);
-				NodeList userInfo = user.getChildNodes();
-
-				for (int j = 0; j < userInfo.getLength(); j++) {
-					Node node = userInfo.item(j);
-					NodeList userMeta = node.getChildNodes();
-
-					for (int k = 0; k < userMeta.getLength(); k++) {
-						userMeta.item(k).setTextContent("new");
-
-					}
-
-					System.out.println();
-				}
-			}
-
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer;
-			try {
-				transformer = tf.newTransformer();
-				DOMSource source = new DOMSource(document);
-				transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				PrintWriter pw = new PrintWriter(new FileOutputStream(
-						outputFileName));
-				StreamResult result = new StreamResult(pw);
-				try {
-					transformer.transform(source, result);
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			} catch (TransformerConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	// adding stats stuff in the function below
-	public static void RemoveReplyOfXml(String inputFileName,
-			String outputFileName) {
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document document = db.parse(inputFileName);
-			NodeList users = document.getChildNodes();
-
-			for (int i = 0; i < users.getLength(); i++) {
-				Node user = users.item(i);
-				NodeList userInfo = user.getChildNodes();
-				// counter to count <s> that has content
-				// not all j has conversation in it
-				int counter = 1;
-				for (int j = 0; j < userInfo.getLength(); j++) {
-
-					Node node = userInfo.item(j);
-					NodeList userMeta = node.getChildNodes();
-					int k = 1;
-					for (; k < userMeta.getLength(); k++) {
-						String content = userMeta.item(k).getTextContent();
-						Pattern p = Pattern.compile("回复 \\S+ :(\\S+)");
-						Matcher m = p.matcher(content);
-						if (m.find()) {
-							userMeta.item(k).setTextContent(m.group(1));
-						}
-
-					}
-					// if there is actually utterance then record the # of
-					// utterance in a conversation
-					if (k > 1) {
-						stats.put("conv" + counter, k);
-						counter++;
-					}
-
-				}
-				System.out.println("stats: " + stats);
-			}
-
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer;
-			try {
-				transformer = tf.newTransformer();
-				DOMSource source = new DOMSource(document);
-				transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				PrintWriter pw = new PrintWriter(new FileOutputStream(
-						outputFileName));
-				StreamResult result = new StreamResult(pw);
-				try {
-					transformer.transform(source, result);
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			} catch (TransformerConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void modifyAttribute(String inputFileName,
-			String outputFileName, String att_name) {
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document document = db.parse(inputFileName);
-			NodeList users = document.getChildNodes();
-
-			for (int i = 0; i < users.getLength(); i++) {
-				Node user = users.item(i);
-				NodeList userInfo = user.getChildNodes();
-
-				for (int j = 0; j < userInfo.getLength(); j++) {
-					Node node = userInfo.item(j);
-					NodeList userMeta = node.getChildNodes();
-
-					for (int k = 0; k < userMeta.getLength(); k++) {
-
-						Node value = userMeta.item(k).getAttributes()
-								.getNamedItem(att_name);
-						value.setNodeValue("2");
-
-					}
-
-				}
-			}
-
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer;
-			try {
-				transformer = tf.newTransformer();
-				DOMSource source = new DOMSource(document);
-				transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				PrintWriter pw = new PrintWriter(new FileOutputStream(
-						outputFileName));
-				StreamResult result = new StreamResult(pw);
-				try {
-					transformer.transform(source, result);
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			} catch (TransformerConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void removeAttribute(String inputFileName,
-			String outputFileName, String att_name) {
-		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document document = db.parse(inputFileName);
-			NodeList users = document.getChildNodes();
-
-			for (int i = 0; i < users.getLength(); i++) {
-				Node user = users.item(i);
-				NodeList userInfo = user.getChildNodes();
-
-				for (int j = 0; j < userInfo.getLength(); j++) {
-					Node node = userInfo.item(j);
-					NodeList userMeta = node.getChildNodes();
-
-					for (int k = 0; k < userMeta.getLength(); k++) {
-						Element element = (Element) userMeta.item(k);
-						element.removeAttribute(att_name);
-
-					}
-
-				}
-			}
-
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer;
-			try {
-				transformer = tf.newTransformer();
-				DOMSource source = new DOMSource(document);
-				transformer.setOutputProperty(OutputKeys.ENCODING, "utf-8");
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				PrintWriter pw = new PrintWriter(new FileOutputStream(
-						outputFileName));
-				StreamResult result = new StreamResult(pw);
-				try {
-					transformer.transform(source, result);
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			} catch (TransformerConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public static void printMap(Map mp, FileWriter file) {
 	    Iterator it = mp.entrySet().iterator();
