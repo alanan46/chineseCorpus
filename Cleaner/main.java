@@ -1,5 +1,5 @@
 // u can remove the line below
-package testjava2;
+package cleaner;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -241,6 +241,7 @@ public class main {
 				FileWriter remove_map_file = new FileWriter("remove_map.txt");
 				printMap(remove_map, remove_map_file);
 				remove_map_file.close();
+                deletelog.close();
 				System.out.println("stats: " + stats);
 			}
 
@@ -334,7 +335,6 @@ public class main {
                 	
                 }
                 output.close();
-                
           
             }
             
