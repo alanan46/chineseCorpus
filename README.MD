@@ -1,3 +1,8 @@
+#purpose
+This repo contains the source code to build a Chinese turn-based dialogue corpus
+and produces the output in xml format.
+Course Work for Comp551 Applied Machine Learning at McGill University
+
 #Dependency
 
 The parser depends on jsoup-1.10.3.jar.
