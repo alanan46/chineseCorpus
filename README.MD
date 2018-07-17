@@ -2,6 +2,12 @@
 This repo contains the source code to build a Chinese turn-based dialogue corpus
 and produces the output in xml format.
 Course Work for Comp551 Applied Machine Learning at McGill University
+While working on this project, we have created a crawler to craw baidu tieba,the largest Chinese online forum.
+With our script, meaningful online turn-based conversation can be downloaded.Note that we only downloaded a conversation if it is beyond a certain length (in terms of turns) to avoid spams.
+
+Using our method you can download any sub forums of baidu tieba and get the output in xml form.
+
+Please read our report (in this repo) to get more details of the project if you are interested. 
 
 ## Dependency
 
